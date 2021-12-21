@@ -117,17 +117,17 @@ final class AuthManager {
         }
     }
     
-    public func refreshAccessToken(completion: @escaping (Bool) -> Void) {
+    public func refreshAccessToken(completion: ((Bool) -> Void)?) {
         guard shouldRefreshToken, !isRefreshing else {
             if !isRefreshing {
-                completion(true)
+                completion?(true)
             }
             return
         }
         guard let refreshToken = refreshToken,
               let url = URL(string: tokenApiURL)
         else {
-            completion(false)
+            completion?(false)
             return
         }
         
@@ -141,7 +141,7 @@ final class AuthManager {
         let basicToken = "\(Keys.clientId):\(Keys.clientSecret)"
         let tokenData = basicToken.data(using: .utf8)
         guard let base64Str = tokenData?.base64EncodedString() else {
-            completion(false)
+            completion?(false)
             return
         }
         isRefreshing = true
@@ -152,7 +152,7 @@ final class AuthManager {
         
         makeTokenRequest(request: request) { [weak self] responseData in
             guard let tokens = responseData else {
-                completion(false)
+                completion?(false)
                 return
             }
             self?.saveToken(tokens)

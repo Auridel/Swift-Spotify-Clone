@@ -42,8 +42,11 @@ class TabBarViewController: UITabBarController {
                                          tag: 3)
         
         homeNC.navigationBar.prefersLargeTitles = true
+        homeNC.navigationBar.tintColor = .label
         searchNC.navigationBar.prefersLargeTitles = true
+        searchNC.navigationBar.tintColor = .label
         libraryNC.navigationBar.prefersLargeTitles = true
+        libraryNC.navigationBar.tintColor = .label
         
         setViewControllers([homeNC, searchNC, libraryNC], animated: false)
     }
