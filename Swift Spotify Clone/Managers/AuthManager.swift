@@ -15,7 +15,22 @@ final class AuthManager {
     
     private let tokenApiURL = "https://accounts.spotify.com/api/token"
     private let redirectURI = "https://task-list-app.vercel.app"
-    private let scopes = "user-read-private%20playlist-modify-public%20playlist-read-private%20playlist-modify-private%20user-follow-read%20user-library-modify%20user-library-read%20user-read-email"
+    private let scopes = "user-read-private%20playlist-modify-public%20playlist-read-private" +
+        "%20playlist-modify-private%20user-follow-read" +
+        "%20user-library-modify%20user-library-read%20user-read-email"
+    
+    private var isRefreshing = false {
+        didSet {
+            guard let token = accessToken, !isRefreshing else {
+                return
+            }
+            for completion in onResreshBlocks {
+                completion(token)
+            }
+        }
+    }
+    
+    private var onResreshBlocks = [((String) -> Void)]()
     
     public var signInURL: URL? {
         let baseURL = "https://accounts.spotify.com/authorize?"
@@ -84,17 +99,34 @@ final class AuthManager {
         }
     }
     
-    public func refreshAccessToken(completion: @escaping (Bool) -> Void) {
-//        guard shouldRefreshToken else {
-//            completion(true)
-//            return
-//        }
-        guard let refreshToken = refreshToken else {
-            completion(false)
+    /// Supplies valid token will be used with Api calls
+    public func withValidToken(completion: @escaping (String) -> Void) {
+        guard !isRefreshing else {
+            onResreshBlocks.append(completion)
             return
         }
-
-        guard let url = URL(string: tokenApiURL) else {
+        
+        if shouldRefreshToken {
+            refreshAccessToken { [weak self] isSuccess in
+                if isSuccess, let token = self?.accessToken {
+                    completion(token)
+                }
+            }
+        } else if let token = accessToken {
+            completion(token)
+        }
+    }
+    
+    public func refreshAccessToken(completion: @escaping (Bool) -> Void) {
+        guard shouldRefreshToken, !isRefreshing else {
+            if !isRefreshing {
+                completion(true)
+            }
+            return
+        }
+        guard let refreshToken = refreshToken,
+              let url = URL(string: tokenApiURL)
+        else {
             completion(false)
             return
         }
@@ -112,6 +144,7 @@ final class AuthManager {
             completion(false)
             return
         }
+        isRefreshing = true
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         request.setValue("Basic \(base64Str)", forHTTPHeaderField: "Authorization")
@@ -138,7 +171,8 @@ final class AuthManager {
     // MARK: Private
     
     private func makeTokenRequest(request: URLRequest, completion: ((AuthResponse?) -> Void)?) {
-        URLSession.shared.dataTask(with: request) { data, _, error in
+        URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
+            self?.isRefreshing = false
             guard let data = data,
                   error == nil
             else {
@@ -155,4 +189,5 @@ final class AuthManager {
             }
         }.resume()
     }
+    
 }
