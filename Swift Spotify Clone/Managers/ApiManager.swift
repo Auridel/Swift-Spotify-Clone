@@ -44,17 +44,17 @@ final class ApiManager {
     }
     
     public func getFeaturedPlaylists(completion: @escaping TypedCompletion<FeaturedPlaylistsResponse>) {
-        performApiCall(to: Constants.baseApiURL + "/browse/featured-playlists?limit=2",
+        performApiCall(to: Constants.baseApiURL + "/browse/featured-playlists?limit=50",
                        method: .GET,
                        returnModel: FeaturedPlaylistsResponse.self,
                        completion: completion)
     }
     
-    public func getRecommendations(genres: Set<String>, completion: @escaping TypedCompletion<String>) {
+    public func getRecommendations(genres: Set<String>, completion: @escaping TypedCompletion<RecommendationsResponse>) {
         let seeds = genres.joined(separator: ",")
-        performApiCall(to: Constants.baseApiURL + "/recommendations?seed_genres=\(seeds)",
+        performApiCall(to: Constants.baseApiURL + "/recommendations?limit=50&seed_genres=\(seeds)",
                        method: .GET,
-                       returnModel: String.self,
+                       returnModel: RecommendationsResponse.self,
                        completion: completion)
     }
     
