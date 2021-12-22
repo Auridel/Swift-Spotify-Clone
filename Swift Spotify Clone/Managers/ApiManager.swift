@@ -27,25 +27,54 @@ final class ApiManager {
     
     private init() {}
     
+    // MARK: Public Methods
+    
     public func getCurrentUserProfile(completion: @escaping TypedCompletion<UserProfile>) {
-        createRequest(URL(string: "\(Constants.baseApiURL)/me"),
-                     type: .GET) { request in
-            URLSession.shared.dataTask(with: request) { data, _, error in
-                guard let data = data, error == nil else {
-                    completion(.failure(ApiError.failedToGetData))
-                    return
-                }
-                do {
-                    let result = try JSONDecoder().decode(UserProfile.self, from: data)
-                    completion(.success(result))
-                } catch let error {
-                    completion(.failure(error))
-                }
-            }.resume()
-       }
+        performApiCall(to: Constants.baseApiURL + "/me",
+                       method: .GET,
+                       returnModel: UserProfile.self,
+                       completion: completion)
     }
     
-    // MARK: Private
+    public func getNewReleases(completion: @escaping TypedCompletion<NewReleasesResponse>) {
+        performApiCall(to: Constants.baseApiURL + "/browse/new-releases?limit=50",
+                       method: .GET,
+                       returnModel: NewReleasesResponse.self,
+                       completion: completion)
+    }
+    
+    public func getFeaturedPlaylists(completion: @escaping TypedCompletion<FeaturedPlaylistsResponse>) {
+        performApiCall(to: Constants.baseApiURL + "/browse/featured-playlists?limit=2",
+                       method: .GET,
+                       returnModel: FeaturedPlaylistsResponse.self,
+                       completion: completion)
+    }
+    
+    public func getRecommendations(genres: Set<String>, completion: @escaping TypedCompletion<String>) {
+        let seeds = genres.joined(separator: ",")
+        performApiCall(to: Constants.baseApiURL + "/recommendations?seed_genres=\(seeds)",
+                       method: .GET,
+                       returnModel: String.self,
+                       completion: completion)
+    }
+    
+    public func getRecommendedGenres(completion: @escaping TypedCompletion<RecommendedGenresResponse>) {
+        performApiCall(to: Constants.baseApiURL + "/recommendations/available-genre-seeds",
+                       method: .GET,
+                       returnModel: RecommendedGenresResponse.self,
+                       completion: completion)
+    }
+    
+    // MARK: Private Methods
+    
+    private func performApiCall<T: Codable>(to urlString: String, method: HTTPMethod, returnModel: T.Type, completion: @escaping TypedCompletion<T>) {
+        createRequest(URL(string: urlString),
+                      type: .GET) { [weak self] request in
+            self?.returnTypedResponse(T.self,
+                                      request: request,
+                                      completion: completion)
+        }
+    }
     
     private func createRequest(_ url: URL?, type: HTTPMethod, completion: @escaping (URLRequest) -> Void) {
         AuthManager.shared.withValidToken { token in
@@ -59,5 +88,24 @@ final class ApiManager {
             request.timeoutInterval = 30
             completion(request)
         }
+    }
+    
+    private func returnTypedResponse<T: Codable>(_ type: T.Type, request: URLRequest, completion: @escaping TypedCompletion<T>) {
+        URLSession.shared.dataTask(with: request) { data, _, error in
+            guard let data = data, error == nil else {
+                completion(.failure(ApiError.failedToGetData))
+                print("Cannot get data")
+                return
+            }
+            
+            do {
+                let result = try JSONDecoder().decode(type,
+                                                      from: data)
+                completion(.success(result))
+            } catch let error {
+                completion(.failure(error))
+                print(error)
+            }
+        }.resume()
     }
 }
