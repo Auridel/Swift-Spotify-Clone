@@ -29,12 +29,15 @@ final class ApiManager {
     
     // MARK: Public Methods
     
+    // MARK: Profile
     public func getCurrentUserProfile(completion: @escaping TypedCompletion<UserProfile>) {
         performApiCall(to: Constants.baseApiURL + "/me",
                        method: .GET,
                        returnModel: UserProfile.self,
                        completion: completion)
     }
+    
+    // MARK: Browse Screen
     
     public func getNewReleases(completion: @escaping TypedCompletion<NewReleasesResponse>) {
         performApiCall(to: Constants.baseApiURL + "/browse/new-releases?limit=50",
@@ -62,6 +65,24 @@ final class ApiManager {
         performApiCall(to: Constants.baseApiURL + "/recommendations/available-genre-seeds",
                        method: .GET,
                        returnModel: RecommendedGenresResponse.self,
+                       completion: completion)
+    }
+    
+    // MARK: Album
+    
+    public func getAlbumDetails(for album: Album, completion: @escaping TypedCompletion<AlbumDetailsResponse>) {
+        performApiCall(to: Constants.baseApiURL + "/albums/" + album.id,
+                       method: .GET,
+                       returnModel: AlbumDetailsResponse.self,
+                       completion: completion)
+    }
+    
+    // MARK: Playlists
+    
+    public func getPlaylistDetails(for playlist: Playlist, completion: @escaping TypedCompletion<PlaylistDetailsResponse>) {
+        performApiCall(to: Constants.baseApiURL + "/playlists/" + playlist.id,
+                       method: .GET,
+                       returnModel: PlaylistDetailsResponse.self,
                        completion: completion)
     }
     
@@ -107,5 +128,25 @@ final class ApiManager {
                 print(error)
             }
         }.resume()
+    }
+    
+    /// Test Get Api Call
+    private func callApiToPrintResponse(_ urlString:String) {
+        createRequest(URL(string: urlString),
+                      type: .GET) { request in
+            URLSession.shared.dataTask(with: request) { data, _, error in
+                guard let data = data, error == nil else {
+                    print("Cannot get data")
+                    return
+                }
+                
+                do {
+                    let result = try JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed)
+                    print(result)
+                } catch let error {
+                    print(error)
+                }
+            }.resume()
+        }
     }
 }

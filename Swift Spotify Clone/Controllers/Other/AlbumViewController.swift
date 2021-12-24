@@ -1,18 +1,18 @@
 //
-//  PlaylistViewController.swift
+//  AlbumViewController.swift
 //  Swift Spotify Clone
 //
-//  Created by Олег Ефимов on 20.12.2021.
+//  Created by Олег Ефимов on 24.12.2021.
 //
 
 import UIKit
 
-class PlaylistViewController: UIViewController {
-
-    private let playlist: Playlist
+class AlbumViewController: UIViewController {
     
-    init(playlist: Playlist) {
-        self.playlist = playlist
+    private let album: Album
+    
+    init(album: Album) {
+        self.album = album
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -24,14 +24,14 @@ class PlaylistViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = playlist.name
+        title = album.name
         view.backgroundColor = .systemBackground
         
-        fetchPlaylistDetails(playlist: playlist)
+        fetchAlbum()
     }
     
-    private func fetchPlaylistDetails(playlist: Playlist) {
-        ApiManager.shared.getPlaylistDetails(for: playlist) { result in
+    private func fetchAlbum() {
+        ApiManager.shared.getAlbumDetails(for: album) { result in
             switch result {
             case .success(let model):
                 print(model)
@@ -40,5 +40,4 @@ class PlaylistViewController: UIViewController {
             }
         }
     }
-
 }
