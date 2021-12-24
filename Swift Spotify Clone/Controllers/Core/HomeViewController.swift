@@ -7,12 +7,6 @@
 
 import UIKit
 
-enum BrowseSectionType {
-    case newReleases(viewModels: [NewReleasesCellViewModel]),
-         featuredPlaylist(viewModels: [NewReleasesCellViewModel]),
-         recommendedTracks(viewModels: [NewReleasesCellViewModel])
-}
-
 class HomeViewController: UIViewController {
     
     private var sections = [BrowseSectionType]()
@@ -243,8 +237,16 @@ class HomeViewController: UIViewController {
                                             numberOfTracks: $0.total_tracks,
                                             artistName: $0.artists.first?.name ?? "-")
         })))
-        sections.append(.featuredPlaylist(viewModels: []))
-        sections.append(.recommendedTracks(viewModels: []))
+        sections.append(.featuredPlaylist(viewModels: playlists.compactMap({
+            return FeaturedPlaylistsCellViewModel(name: $0.name,
+                                                  artworkURL: URL(string: $0.images.first?.url ?? ""),
+                                                  creatorName: $0.owner.display_name)
+        })))
+        sections.append(.recommendedTracks(viewModels: tracks.compactMap({
+            return RecommendedTrackcCellViewModel(name: $0.name,
+                                                  artistName: $0.artists.first?.name ?? "-",
+                                                  artworkURL: URL(string: $0.album.images.first?.url ?? ""))
+        })))
         collectionView.reloadData()
     }
 }
@@ -282,10 +284,12 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
         case .featuredPlaylist(let viewModels):
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FeaturedPlaylistCollectionViewCell.identifier,
                                                           for: indexPath) as! FeaturedPlaylistCollectionViewCell
+            cell.configure(with: viewModels[indexPath.row])
             return cell
         case .recommendedTracks(let viewModels):
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RecommendedTrackCollectionViewCell.identifier,
                                                           for: indexPath) as! RecommendedTrackCollectionViewCell
+            cell.configure(with: viewModels[indexPath.row])
             return cell
         }
     }
