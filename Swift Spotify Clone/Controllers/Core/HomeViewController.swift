@@ -59,6 +59,9 @@ class HomeViewController: UIViewController {
                                 forCellWithReuseIdentifier: FeaturedPlaylistCollectionViewCell.identifier)
         collectionView.register(RecommendedTrackCollectionViewCell.self,
                                 forCellWithReuseIdentifier: RecommendedTrackCollectionViewCell.identifier)
+        collectionView.register(TitleHeaderCollectionReusableView.self,
+                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+                                withReuseIdentifier: TitleHeaderCollectionReusableView.identifier)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .systemBackground
@@ -77,10 +80,20 @@ class HomeViewController: UIViewController {
     // MARK: Common
     
     private static func createSectionLayout(sectionIdx: Int) -> NSCollectionLayoutSection? {
+        let supplementaryViews = [
+            NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1),
+                    heightDimension: .absolute(50)),
+                elementKind: UICollectionView.elementKindSectionHeader,
+                alignment: .top)
+        ]
+        var section: NSCollectionLayoutSection?
+        
         switch sectionIdx {
         case 0:
             //            self.createComposeLayoutSection(
-            return Utils.createComposeLayoutSection(
+            section = Utils.createComposeLayoutSection(
                 itemLayoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                        heightDimension: .fractionalHeight(1.0)),
                 itemsInsets: NSDirectionalEdgeInsets(top: 2,
@@ -95,7 +108,7 @@ class HomeViewController: UIViewController {
                 horizontalCount: 1,
                 orthogonalBehavior: .groupPaging)
         case 1:
-            return Utils.createComposeLayoutSection(
+            section = Utils.createComposeLayoutSection(
                 itemLayoutSize: NSCollectionLayoutSize(widthDimension: .absolute(200),
                                                        heightDimension: .absolute(200)),
                 itemsInsets: NSDirectionalEdgeInsets(top: 2,
@@ -110,7 +123,7 @@ class HomeViewController: UIViewController {
                 horizontalCount: 1,
                 orthogonalBehavior: .continuous)
         case 2:
-            return Utils.createComposeLayoutSection(
+            section = Utils.createComposeLayoutSection(
                 itemLayoutSize:  NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                         heightDimension: .fractionalHeight(1.0)),
                 itemsInsets: NSDirectionalEdgeInsets(top: 2,
@@ -124,7 +137,7 @@ class HomeViewController: UIViewController {
                 horizontalCount: nil,
                 orthogonalBehavior: nil)
         default:
-            return Utils.createComposeLayoutSection(
+            section = Utils.createComposeLayoutSection(
                 itemLayoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                        heightDimension: .fractionalHeight(1.0)),
                 itemsInsets: NSDirectionalEdgeInsets(top: 2,
@@ -138,6 +151,8 @@ class HomeViewController: UIViewController {
                 horizontalCount: nil,
                 orthogonalBehavior: nil)
         }
+        section?.boundarySupplementaryItems = supplementaryViews
+        return section
     }
     
     ///get featured playlists, new releases and recommended tracks
@@ -262,6 +277,18 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
         }
     }
     
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        guard kind == UICollectionView.elementKindSectionHeader,
+              let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind,
+                                                                     withReuseIdentifier: TitleHeaderCollectionReusableView.identifier,
+                                                                     for: indexPath) as? TitleHeaderCollectionReusableView
+        else {
+            return UICollectionReusableView()
+        }
+        let sectionModel = sections[indexPath.section]
+        header.configure(with: sectionModel.title)
+        return header
+    }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let sectionModel = sections[indexPath.section]
@@ -298,6 +325,14 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             let playlist = playlists[indexPath.row]
             let playlistVC = PlaylistViewController(playlist: playlist)
             playlistVC.navigationItem.largeTitleDisplayMode = .never
+            //push from bottom animation
+//            let transition = CATransition()
+//            transition.duration = 0.3
+//            transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+//            transition.type = .moveIn
+//            transition.subtype = .fromTop
+//            navigationController?.view.layer.add(transition, forKey: nil)
+            //
             navigationController?.pushViewController(playlistVC, animated: true)
         case .recommendedTracks:
             let track = tracks[indexPath.row]
