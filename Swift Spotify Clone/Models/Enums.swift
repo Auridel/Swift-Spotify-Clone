@@ -10,5 +10,5 @@ import Foundation
 enum BrowseSectionType {
     case newReleases(viewModels: [NewReleasesCellViewModel]),
          featuredPlaylist(viewModels: [FeaturedPlaylistsCellViewModel]),
-         recommendedTracks(viewModels: [RecommendedTrackcCellViewModel])
+         recommendedTracks(viewModels: [RecommendedTracksCellViewModel])
 }

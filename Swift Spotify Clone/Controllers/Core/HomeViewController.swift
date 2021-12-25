@@ -79,83 +79,64 @@ class HomeViewController: UIViewController {
     private static func createSectionLayout(sectionIdx: Int) -> NSCollectionLayoutSection? {
         switch sectionIdx {
         case 0:
-            //item
-            let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                                                 heightDimension: .fractionalHeight(1.0)))
-            item.contentInsets = NSDirectionalEdgeInsets(top: 2,
-                                                         leading: 2,
-                                                         bottom: 2,
-                                                         trailing: 2)
-            //vertical group in horizontal group
-            let verticalGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                                                                      heightDimension: .absolute(390)),
-                                                                   subitem: item,
-                                                                   count: 3)
-            
-            let horizontalGroup = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.9),
-                                                                                            heightDimension: .absolute(390)),
-                                                         subitem: verticalGroup,
-                                                         count: 1)
-            //section
-            let section = NSCollectionLayoutSection(group: horizontalGroup)
-            section.orthogonalScrollingBehavior = .groupPaging
-            return section
+            //            self.createComposeLayoutSection(
+            return Utils.createComposeLayoutSection(
+                itemLayoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                       heightDimension: .fractionalHeight(1.0)),
+                itemsInsets: NSDirectionalEdgeInsets(top: 2,
+                                                     leading: 2,
+                                                     bottom: 2,
+                                                     trailing: 2),
+                verticalLayoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                           heightDimension: .absolute(390)),
+                horizontalLayoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.9),
+                                                             heightDimension: .absolute(390)),
+                verticalCount: 3,
+                horizontalCount: 1,
+                orthogonalBehavior: .groupPaging)
         case 1:
-            //item
-            let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .absolute(200),
-                                                                                 heightDimension: .absolute(200)))
-            item.contentInsets = NSDirectionalEdgeInsets(top: 2,
-                                                         leading: 2,
-                                                         bottom: 2,
-                                                         trailing: 2)
-            //vertical group in horizontal group
-            
-            let verticalGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .absolute(200),
-                                                                                            heightDimension: .absolute(400)),
-                                                         subitem: item,
-                                                         count: 2)
-            
-            let horizontalGroup = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .absolute(200),
-                                                                                            heightDimension: .absolute(400)),
-                                                         subitem: verticalGroup,
-                                                         count: 1)
-            //section
-            let section = NSCollectionLayoutSection(group: horizontalGroup)
-            section.orthogonalScrollingBehavior = .continuous
-            return section
+            return Utils.createComposeLayoutSection(
+                itemLayoutSize: NSCollectionLayoutSize(widthDimension: .absolute(200),
+                                                       heightDimension: .absolute(200)),
+                itemsInsets: NSDirectionalEdgeInsets(top: 2,
+                                                     leading: 2,
+                                                     bottom: 2,
+                                                     trailing: 2),
+                verticalLayoutSize: NSCollectionLayoutSize(widthDimension: .absolute(200),
+                                                           heightDimension: .absolute(400)),
+                horizontalLayoutSize: NSCollectionLayoutSize(widthDimension: .absolute(200),
+                                                             heightDimension: .absolute(400)),
+                verticalCount: 2,
+                horizontalCount: 1,
+                orthogonalBehavior: .continuous)
         case 2:
-            //item
-            let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                                                 heightDimension: .fractionalHeight(1.0)))
-            item.contentInsets = NSDirectionalEdgeInsets(top: 2,
-                                                         leading: 2,
-                                                         bottom: 2,
-                                                         trailing: 2)
-            //vertical group in horizontal group
-            let verticalGroup = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                                                                      heightDimension: .absolute(80)),
-                                                                   subitem: item,
-                                                                   count: 1)
-            
-            //section
-            let section = NSCollectionLayoutSection(group: verticalGroup)
-            return section
+            return Utils.createComposeLayoutSection(
+                itemLayoutSize:  NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                        heightDimension: .fractionalHeight(1.0)),
+                itemsInsets: NSDirectionalEdgeInsets(top: 2,
+                                                     leading: 2,
+                                                     bottom: 2,
+                                                     trailing: 2),
+                verticalLayoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                           heightDimension: .absolute(80)),
+                horizontalLayoutSize: nil,
+                verticalCount: 1,
+                horizontalCount: nil,
+                orthogonalBehavior: nil)
         default:
-            //item
-            let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                                                 heightDimension: .fractionalHeight(1.0)))
-            item.contentInsets = NSDirectionalEdgeInsets(top: 2,
-                                                         leading: 2,
-                                                         bottom: 2,
-                                                         trailing: 2)
-            //vertical group in horizontal group
-            let group = NSCollectionLayoutGroup.vertical(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                                                                      heightDimension: .absolute(390)),
-                                                                   subitem: item,
-                                                                   count: 1)
-            //section
-            let section = NSCollectionLayoutSection(group: group)
-            return section
+            return Utils.createComposeLayoutSection(
+                itemLayoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                       heightDimension: .fractionalHeight(1.0)),
+                itemsInsets: NSDirectionalEdgeInsets(top: 2,
+                                                     leading: 2,
+                                                     bottom: 2,
+                                                     trailing: 2),
+                verticalLayoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                           heightDimension: .absolute(390)),
+                horizontalLayoutSize: nil,
+                verticalCount: 1,
+                horizontalCount: nil,
+                orthogonalBehavior: nil)
         }
     }
     
@@ -231,8 +212,8 @@ class HomeViewController: UIViewController {
             }
             
             self?.confugureModels(albums: albums,
-                                 playlists: playlists,
-                                 tracks: tracks)
+                                  playlists: playlists,
+                                  tracks: tracks)
         }
     }
     
@@ -253,7 +234,7 @@ class HomeViewController: UIViewController {
                                                   creatorName: $0.owner.display_name)
         })))
         sections.append(.recommendedTracks(viewModels: tracks.compactMap({
-            return RecommendedTrackcCellViewModel(name: $0.name,
+            return RecommendedTracksCellViewModel(name: $0.name,
                                                   artistName: $0.artists.first?.name ?? "-",
                                                   artworkURL: URL(string: $0.album?.images.first?.url ?? ""))
         })))
