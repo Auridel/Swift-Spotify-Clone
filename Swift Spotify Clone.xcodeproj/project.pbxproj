@@ -49,6 +49,7 @@
 		F864A70A277524F400A362BE /* NewReleaseCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F864A709277524F400A362BE /* NewReleaseCollectionViewCell.swift */; };
 		F864A70C2775251A00A362BE /* FeaturedPlaylistCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F864A70B2775251A00A362BE /* FeaturedPlaylistCollectionViewCell.swift */; };
 		F864A70E2775254700A362BE /* RecommendedTrackCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F864A70D2775254700A362BE /* RecommendedTrackCollectionViewCell.swift */; };
+		F8E0992B2778EE9900CF7E18 /* GenreCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E0992A2778EE9900CF7E18 /* GenreCollectionViewCell.swift */; };
 		F8E2D6F12777B3EC005FEE1E /* TitleHeaderCollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E2D6F02777B3EC005FEE1E /* TitleHeaderCollectionReusableView.swift */; };
 		F8E2D6F42777BC4D005FEE1E /* AlbumTrackCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E2D6F32777BC4D005FEE1E /* AlbumTrackCollectionViewCell.swift */; };
 		F8E2D6F62777BD7B005FEE1E /* AlbumCollectionViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E2D6F52777BD7B005FEE1E /* AlbumCollectionViewCellViewModel.swift */; };
@@ -104,6 +105,7 @@
 		F864A709277524F400A362BE /* NewReleaseCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewReleaseCollectionViewCell.swift; sourceTree = "<group>"; };
 		F864A70B2775251A00A362BE /* FeaturedPlaylistCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturedPlaylistCollectionViewCell.swift; sourceTree = "<group>"; };
 		F864A70D2775254700A362BE /* RecommendedTrackCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedTrackCollectionViewCell.swift; sourceTree = "<group>"; };
+		F8E0992A2778EE9900CF7E18 /* GenreCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenreCollectionViewCell.swift; sourceTree = "<group>"; };
 		F8E2D6F02777B3EC005FEE1E /* TitleHeaderCollectionReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleHeaderCollectionReusableView.swift; sourceTree = "<group>"; };
 		F8E2D6F32777BC4D005FEE1E /* AlbumTrackCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumTrackCollectionViewCell.swift; sourceTree = "<group>"; };
 		F8E2D6F52777BD7B005FEE1E /* AlbumCollectionViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumCollectionViewCellViewModel.swift; sourceTree = "<group>"; };
@@ -186,6 +188,7 @@
 		F813B951276FD4840077216F /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				F8E099292778EE7500CF7E18 /* Search */,
 				F8E2D6F22777BC3A005FEE1E /* Album */,
 				F8E2D6EF2777B3D1005FEE1E /* Headers */,
 				F864A708277524D700A362BE /* Browse */,
@@ -291,6 +294,14 @@
 				F864A70B2775251A00A362BE /* FeaturedPlaylistCollectionViewCell.swift */,
 			);
 			path = Browse;
+			sourceTree = "<group>";
+		};
+		F8E099292778EE7500CF7E18 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				F8E0992A2778EE9900CF7E18 /* GenreCollectionViewCell.swift */,
+			);
+			path = Search;
 			sourceTree = "<group>";
 		};
 		F8E2D6EF2777B3D1005FEE1E /* Headers */ = {
@@ -440,6 +451,7 @@
 				F864A70E2775254700A362BE /* RecommendedTrackCollectionViewCell.swift in Sources */,
 				F813B95A276FD64B0077216F /* SearchViewController.swift in Sources */,
 				F813B974276FD7330077216F /* Playlist.swift in Sources */,
+				F8E0992B2778EE9900CF7E18 /* GenreCollectionViewCell.swift in Sources */,
 				F8E2D6F12777B3EC005FEE1E /* TitleHeaderCollectionReusableView.swift in Sources */,
 				F813B96E276FD6F80077216F /* AuthManager.swift in Sources */,
 				F8054AEC2773D2EE00AC1DCC /* RecommendedGenresResponse.swift in Sources */,
