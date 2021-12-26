@@ -195,7 +195,6 @@ class HomeViewController: UIViewController {
         ApiManager.shared.getRecommendedGenres { result in
             switch result {
             case .success(let result):
-                print(result)
                 let genres = result.genres
                 var seeds = Set<String>()
                 while seeds.count < 5 {

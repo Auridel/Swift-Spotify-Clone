@@ -1,15 +1,16 @@
 //
-//  GenreCollectionViewCell.swift
+//  CategoryCollectionViewCell.swift
 //  Swift Spotify Clone
 //
 //  Created by Олег Ефимов on 26.12.2021.
 //
 
 import UIKit
+import SDWebImage
 
-class GenreCollectionViewCell: UICollectionViewCell {
+class CategoryCollectionViewCell: UICollectionViewCell {
     
-    public static let identifier = "GenreCollectionViewCell"
+    public static let identifier = "CategoryCollectionViewCell"
     
     private let colors: [UIColor] = [
         .systemPurple, .systemGreen, .systemBlue, .systemOrange, .systemPink, .systemRed, .systemYellow, .systemGray, .systemBrown, .systemIndigo
@@ -56,7 +57,7 @@ class GenreCollectionViewCell: UICollectionViewCell {
                              width: width,
                              height: contentView.height / 2)
         imageView.frame = CGRect(x: contentView.width / 2,
-                                 y: 0,
+                                 y: 10,
                                  width: contentView.width / 2,
                                  height: contentView.height / 2)
     }
@@ -65,12 +66,14 @@ class GenreCollectionViewCell: UICollectionViewCell {
         super.prepareForReuse()
         
         label.text = nil
+        imageView.image = UIImage(systemName: "music.quarternote.3")
     }
     
     // MARK: Common
     
-    public func configure(with title: String) {
-        label.text = title
+    public func configure(with model: CategoryCollectionViewCellViewModel) {
+        label.text = model.title
+        imageView.sd_setImage(with: model.artworkURL, completed: nil)
         contentView.backgroundColor = colors.randomElement()
     }
 }

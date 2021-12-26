@@ -30,6 +30,7 @@ final class ApiManager {
     // MARK: Public Methods
     
     // MARK: Profile
+    
     public func getCurrentUserProfile(completion: @escaping TypedCompletion<UserProfile>) {
         performApiCall(to: Constants.baseApiURL + "/me",
                        method: .GET,
@@ -84,6 +85,24 @@ final class ApiManager {
                        method: .GET,
                        returnModel: PlaylistDetailsResponse.self,
                        completion: completion)
+    }
+    
+    // MARK: Category
+    
+    public func getCategories(completion: @escaping TypedCompletion<AllCategoriesResponse>) {
+        performApiCall(
+            to: Constants.baseApiURL + "/browse/categories?limit=50",
+            method: .GET,
+            returnModel: AllCategoriesResponse.self,
+            completion: completion)
+    }
+    
+    public func getCategoryPlaylists(for categoryId: String, completion: @escaping TypedCompletion<CategoryPlaylistsResponse>) {
+        performApiCall(
+            to: Constants.baseApiURL + "/browse/categories/\(categoryId)/playlists?limit=50",
+            method: .GET,
+            returnModel: CategoryPlaylistsResponse.self,
+            completion: completion)
     }
     
     // MARK: Private Methods
