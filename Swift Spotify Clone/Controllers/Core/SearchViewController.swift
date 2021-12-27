@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import SafariServices
 
 class SearchViewController: UIViewController {
     
@@ -189,8 +190,13 @@ extension SearchViewController: SearchResultsViewControllerDelegate {
     func didTapSearchResult(_ result: SearchResult) {
         var controller: UIViewController?
         switch result {
+            //TODO: implement native artist page
         case .artist(model: let model):
-            break
+            guard let url = URL(string: model.external_urls["spotify"] ?? "") else {
+                return
+            }
+            let safariVC = SFSafariViewController(url: url)
+            present(safariVC, animated: true)
         case .album(model: let model):
             controller = AlbumViewController(album: model)
         case .playlist(model: let model):
