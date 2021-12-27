@@ -6,10 +6,13 @@
 //
 
 import UIKit
+import Combine
 
 class SearchViewController: UIViewController {
     
     private var categories = [Category]()
+    
+    private var cancelable = [AnyCancellable]()
     
     private let searchController: UISearchController = {
         let searchVC = UISearchController(searchResultsController: SearchResultsViewController())
@@ -48,13 +51,14 @@ class SearchViewController: UIViewController {
         }))
     
     // MARK: Lifecycle
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         view.backgroundColor = .systemBackground
         
         configureViews()
+        applyCombineSearch()
         
         ApiManager.shared.getCategories { [weak self] result in
             DispatchQueue.main.async {
@@ -71,7 +75,7 @@ class SearchViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-
+        
         collectionView.frame = view.bounds
     }
     
@@ -79,7 +83,7 @@ class SearchViewController: UIViewController {
     
     private func configureViews() {
         navigationItem.searchController = searchController
-        searchController.searchResultsUpdater = self
+        searchController.searchBar.delegate = self
         
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -88,7 +92,45 @@ class SearchViewController: UIViewController {
         
         view.addSubview(collectionView)
     }
-
+    
+    /// Debounce search query on type
+    private func applyCombineSearch() {
+        let publisher = NotificationCenter.default.publisher(
+            for: UISearchTextField.textDidChangeNotification,
+               object: searchController.searchBar.searchTextField)
+        publisher
+            .map {
+                ($0.object as! UISearchTextField).text ?? ""
+            }
+            .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
+            .sink { [weak self] query in
+                guard !query.trimmingCharacters(in: .whitespaces).isEmpty else {
+                    return
+                }
+                DispatchQueue.global(qos: .userInteractive).async {
+                    self?.performSearch(query)
+                }
+            }
+            .store(in: &cancelable)
+    }
+    
+    /// Does Api Call and update UI
+    private func performSearch(_ query: String) {
+        ApiManager.shared.getTypedSearchResults(query: query) { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self = self,
+                      let resultsController = self.searchController.searchResultsController as? SearchResultsViewController
+                else { return }
+                switch result {
+                case .success(let results):
+                    resultsController.delegate = self
+                    resultsController.update(with: results)
+                case .failure(_):
+                    break
+                }
+            }
+        }
+    }
 }
 
 // MARK: CollectionView
@@ -126,18 +168,42 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
 
 // MARK: Search Results Updater
 
-extension SearchViewController: UISearchResultsUpdating {
+extension SearchViewController: UISearchBarDelegate {
     
-    func updateSearchResults(for searchController: UISearchController) {
-        guard let query = searchController.searchBar.text,
-              !query.trimmingCharacters(in: .whitespaces).isEmpty,
-              let resultsControlles = searchController.searchResultsController as? SearchResultsViewController
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let query = searchBar.text,
+              !query.trimmingCharacters(in: .whitespaces).isEmpty
         else {
             return
         }
-        //update res vc
-        print(query)
-        //search
+        
+        self.performSearch(query)
+    }
+}
+
+
+// MARK: SearchResults Delegate
+
+extension SearchViewController: SearchResultsViewControllerDelegate {
+    
+    func didTapSearchResult(_ result: SearchResult) {
+        var controller: UIViewController?
+        switch result {
+        case .artist(model: let model):
+            break
+        case .album(model: let model):
+            controller = AlbumViewController(album: model)
+        case .playlist(model: let model):
+            controller = PlaylistViewController(playlist: model)
+        case .track(model: let model):
+            break
+        }
+        
+        guard let controller = controller else {
+            return
+        }
+        controller.navigationItem.largeTitleDisplayMode = .never
+        navigationController?.pushViewController(controller, animated: true)
     }
     
 }

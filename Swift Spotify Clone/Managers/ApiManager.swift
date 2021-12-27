@@ -105,6 +105,33 @@ final class ApiManager {
             completion: completion)
     }
     
+    // MARK: Search
+    
+    public func search(with query: String, completion: @escaping TypedCompletion<SearchResultsResponse>) {
+        let urlPath = Constants.baseApiURL + "/search?limit=15&type=album,artist,playlist,track" +
+            "&q=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
+        performApiCall(
+            to: urlPath,
+            method: .GET,
+            returnModel: SearchResultsResponse.self,
+            completion: completion)
+    }
+    
+    public func getTypedSearchResults(query: String, completion: @escaping TypedCompletion<[SearchResult]>) {
+        self.search(with: query) { result in
+            switch result {case .success(let model):
+                var searchResults = [SearchResult]()
+                searchResults.append(contentsOf: model.tracks.items.compactMap({ SearchResult.track(model: $0) }))
+                searchResults.append(contentsOf: model.albums.items.compactMap({ SearchResult.album(model: $0) }))
+                searchResults.append(contentsOf: model.artists.items.compactMap({ SearchResult.artist(model: $0) }))
+                searchResults.append(contentsOf: model.playlists.items.compactMap({ SearchResult.playlist(model: $0) }))
+                completion(.success(searchResults))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
     // MARK: Private Methods
     
     private func performApiCall<T: Codable>(to urlString: String, method: HTTPMethod, returnModel: T.Type, completion: @escaping TypedCompletion<T>) {
