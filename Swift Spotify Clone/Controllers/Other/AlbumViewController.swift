@@ -13,6 +13,8 @@ class AlbumViewController: UIViewController {
     
     private var viewModels = [AlbumCollectionViewCellViewModel]()
     
+    private var tracks = [AudioTrack]()
+    
     private let collectionView = UICollectionView(
         frame: .zero,
         collectionViewLayout: UICollectionViewCompositionalLayout(
@@ -74,6 +76,7 @@ class AlbumViewController: UIViewController {
             DispatchQueue.main.async {
                 switch result {
                 case .success(let model):
+                    self?.tracks = model.tracks.items
                     self?.viewModels = model.tracks.items.compactMap {
                         AlbumCollectionViewCellViewModel(
                             name: $0.name,
@@ -124,7 +127,9 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        //play track
+        let track = tracks[indexPath.row]
+        PlaybackPresenter.startPlayback(from: self,
+                                        track: track)
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -140,8 +145,19 @@ extension AlbumViewController: UICollectionViewDelegate, UICollectionViewDataSou
             ownerName: album.artists.first?.name ?? "",
             description: "Release Date: \(album.release_date.formattedDate())",
             artworkURL: URL(string: album.images.first?.url ?? "")))
-//        header.delegate = self
+        header.delegate = self
         return header
     }
+}
+
+// MARK: PlaylistHeader Delegate
+
+extension AlbumViewController: PlaylistHeaderCollectionReusableViewDelegate {
+    
+    func didTapPlayAll(_ header: PlaylistHeaderCollectionReusableView) {
+        PlaybackPresenter.startPlayback(from: self,
+                                        tracks: tracks)
+    }
+    
 }
 
