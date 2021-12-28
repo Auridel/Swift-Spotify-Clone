@@ -11,11 +11,22 @@ protocol PlayerControlsViewDelegate: AnyObject {
     func playerControlsViewDidTapPlayPause(_ playerControlsView: PlayerControlsView)
     func playerControlsViewDidTapForwardButton(_ playerControlsView: PlayerControlsView)
     func playerControlsViewDidTapBackwardsButton(_ playerControlsView: PlayerControlsView)
+    func playerControlsViewDidInteractSlider(_ playerControlsView: PlayerControlsView, didInteractSlider value: Float)
 }
 
 class PlayerControlsView: UIView {
     
     weak var delegate: PlayerControlsViewDelegate?
+    
+    private var isPlaying = true
+    
+    private var playButtonImage: UIImage? {
+        UIImage(
+            systemName: isPlaying ? "pause" : "play.fill",
+            withConfiguration: UIImage.SymbolConfiguration(
+                pointSize: 34,
+                weight: .regular))
+    }
     
     private let volumeSlider: UISlider = {
         let slider = UISlider()
@@ -67,13 +78,6 @@ class PlayerControlsView: UIView {
     private let playPauseButton: UIButton = {
         let button = UIButton()
         button.tintColor = .label
-        button.setImage(
-            UIImage(
-                systemName: "pause",
-                withConfiguration: UIImage.SymbolConfiguration(
-                    pointSize: 34,
-                    weight: .regular)),
-            for: .normal)
         return button
     }()
 
@@ -98,7 +102,11 @@ class PlayerControlsView: UIView {
     // MARK: Actions
     
     @objc private func didTapPlayPauseButton() {
+        isPlaying = !isPlaying
         delegate?.playerControlsViewDidTapPlayPause(self)
+        playPauseButton.setImage(
+            playButtonImage,
+            for: .normal)
     }
     
     @objc private func didTapBackButton() {
@@ -109,7 +117,18 @@ class PlayerControlsView: UIView {
         delegate?.playerControlsViewDidTapForwardButton(self)
     }
     
+    @objc private func didUpdateSlider(_ slider: UISlider) {
+        let value = slider.value
+        delegate?.playerControlsViewDidInteractSlider(self,
+                                                      didInteractSlider: value)
+    }
+    
     // MARK: Common
+    
+    public func configure(with viewModel: PlayerControlsViewViewModel) {
+        nameLabel.text = viewModel.title
+        subtitleLabel.text = viewModel.subtitle
+    }
     
     private func configureViews() {
         backButton.addTarget(self,
@@ -121,6 +140,10 @@ class PlayerControlsView: UIView {
         playPauseButton.addTarget(self,
                                   action: #selector(didTapPlayPauseButton),
                                   for: .touchUpInside)
+        volumeSlider.addTarget(self,
+                               action: #selector(didUpdateSlider(_:)),
+                               for: .valueChanged)
+        playPauseButton.setImage(playButtonImage, for: .normal)
         
         addSubview(nameLabel)
         addSubview(subtitleLabel)

@@ -202,7 +202,7 @@ extension SearchViewController: SearchResultsViewControllerDelegate {
         case .playlist(model: let model):
             controller = PlaylistViewController(playlist: model)
         case .track(model: let model):
-            PlaybackPresenter.startPlayback(from: self,
+            PlaybackPresenter.shared.startPlayback(from: self,
                                             track: model)
         }
         
