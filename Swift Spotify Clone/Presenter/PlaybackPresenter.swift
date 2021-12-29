@@ -20,26 +20,23 @@ final class PlaybackPresenter {
     
     public static let shared = PlaybackPresenter()
     
+    private init() {}
+    
     private var track: AudioTrack?
     
     private var tracks = [AudioTrack]()
+    
+    private var playerVC: PlayerViewController?
+    
+    private var currentIndex = 0
     
     private var player: AVPlayer?
     
     private var playerQueue: AVQueuePlayer?
     
     private var currentTrack: AudioTrack? {
-        if let track = track, tracks.isEmpty {
-            return track
-        } else if let player = self.playerQueue, !tracks.isEmpty {
-            let currentItem = player.currentItem
-            let items = player.items()
-            guard let index = items.firstIndex(where: {$0 == currentItem}),
-                  let currentTrack = Optional(tracks[index])
-            else {
-                return nil
-            }
-            return currentTrack
+        if currentIndex < tracks.count {
+            return tracks[currentIndex]
         }
         return nil
     }
@@ -54,6 +51,7 @@ final class PlaybackPresenter {
         player?.volume = 0.5
         player?.play()
         
+        currentIndex = 0
         self.track = track
         self.tracks = []
         presentPlayerVC(with: track.name, from: viewController)
@@ -62,6 +60,7 @@ final class PlaybackPresenter {
     public func startPlayback(from viewController: UIViewController, tracks: [AudioTrack]) {
         self.tracks = tracks
         self.track = nil
+        self.currentIndex = 0
         
         let items: [AVPlayerItem] = tracks.compactMap({
             guard let url = URL(string: $0.preview_url ?? "")
@@ -83,6 +82,7 @@ final class PlaybackPresenter {
         viewController.present(
             UINavigationController(rootViewController: playerVC),
             animated: true)
+        self.playerVC = playerVC
     }
 }
 
@@ -98,7 +98,6 @@ extension PlaybackPresenter: PlayerDataSource {
     }
     
     var imageURL: URL? {
-        print(currentTrack?.album?.images.first)
         return URL(string: currentTrack?.album?.images.first?.url ?? "")
     }
     
@@ -135,10 +134,15 @@ extension PlaybackPresenter: PlayerViewControllerDelegate {
             player?.pause()
         } else if let playerQueue = playerQueue {
             playerQueue.advanceToNextItem()
+            if currentIndex != tracks.count - 1 {
+                currentIndex += 1
+            }
+            playerVC?.refreshUI()
         }
     }
     
     //FIXME: fix player queue
+    //TODO: swipes
     func didTapBackward() {
         if tracks.isEmpty {
             player?.pause()
