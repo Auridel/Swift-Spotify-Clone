@@ -35,8 +35,10 @@ final class PlaybackPresenter {
     private var playerQueue: AVQueuePlayer?
     
     private var currentTrack: AudioTrack? {
-        if currentIndex < tracks.count {
+        if !tracks.isEmpty, currentIndex < tracks.count {
             return tracks[currentIndex]
+        } else if track != nil, tracks.isEmpty {
+            return track
         }
         return nil
     }
