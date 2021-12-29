@@ -20,7 +20,7 @@ class LibraryToggleView: UIView {
     
     weak var delegate: LibraryToggleViewDelegate?
     
-    private var state: LibraryToggleState = .playlists
+    internal var state: LibraryToggleState = .playlists
     
     private let playlistButton: UIButton = {
         let button = UIButton()

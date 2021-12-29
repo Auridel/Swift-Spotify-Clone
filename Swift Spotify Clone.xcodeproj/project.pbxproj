@@ -69,6 +69,8 @@
 		F8E7C019277CE93B001C4E50 /* LibraryPlaylistsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E7C018277CE93B001C4E50 /* LibraryPlaylistsViewController.swift */; };
 		F8E7C01B277CE95E001C4E50 /* LibraryAlbumsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E7C01A277CE95E001C4E50 /* LibraryAlbumsViewController.swift */; };
 		F8E7C01E277CED06001C4E50 /* LibraryToggleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E7C01D277CED06001C4E50 /* LibraryToggleView.swift */; };
+		F8E7C023277CFFCF001C4E50 /* ActionLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E7C022277CFFCF001C4E50 /* ActionLabelView.swift */; };
+		F8E7C025277D000B001C4E50 /* ActionLabelViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E7C024277D000B001C4E50 /* ActionLabelViewModel.swift */; };
 		F8EDC8E22770FB980027E263 /* Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8EDC8E12770FB980027E263 /* Keys.swift */; };
 		F8EDC8E42770FF3D0027E263 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8EDC8E32770FF3D0027E263 /* Extensions.swift */; };
 		F8EDC8E6277116C20027E263 /* AuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8EDC8E5277116C20027E263 /* AuthResponse.swift */; };
@@ -141,6 +143,8 @@
 		F8E7C018277CE93B001C4E50 /* LibraryPlaylistsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryPlaylistsViewController.swift; sourceTree = "<group>"; };
 		F8E7C01A277CE95E001C4E50 /* LibraryAlbumsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryAlbumsViewController.swift; sourceTree = "<group>"; };
 		F8E7C01D277CED06001C4E50 /* LibraryToggleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryToggleView.swift; sourceTree = "<group>"; };
+		F8E7C022277CFFCF001C4E50 /* ActionLabelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionLabelView.swift; sourceTree = "<group>"; };
+		F8E7C024277D000B001C4E50 /* ActionLabelViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionLabelViewModel.swift; sourceTree = "<group>"; };
 		F8EDC8E12770FB980027E263 /* Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keys.swift; sourceTree = "<group>"; };
 		F8EDC8E32770FF3D0027E263 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		F8EDC8E5277116C20027E263 /* AuthResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthResponse.swift; sourceTree = "<group>"; };
@@ -222,6 +226,7 @@
 		F813B951276FD4840077216F /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				F8E7C021277CFFB3001C4E50 /* Common */,
 				F8E7C01C277CECE8001C4E50 /* Library */,
 				F818ED24277BA35900261A35 /* Player */,
 				F8469713277A5FD9007A84B2 /* SearchResults */,
@@ -270,6 +275,7 @@
 				F8469716277A61C8007A84B2 /* SearchResultDefaultTableViewCellViewModel.swift */,
 				F846971A277A6517007A84B2 /* SearchResultsSubtitleTableViewCellViewModel.swift */,
 				F818ED27277BB15F00261A35 /* PlayerControlsViewViewModel.swift */,
+				F8E7C024277D000B001C4E50 /* ActionLabelViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -417,6 +423,14 @@
 			path = Library;
 			sourceTree = "<group>";
 		};
+		F8E7C021277CFFB3001C4E50 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				F8E7C022277CFFCF001C4E50 /* ActionLabelView.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
 		F8EDC8E02770FB8F0027E263 /* Keys */ = {
 			isa = PBXGroup;
 			children = (
@@ -554,6 +568,7 @@
 				F8E2D6F12777B3EC005FEE1E /* TitleHeaderCollectionReusableView.swift in Sources */,
 				F813B96E276FD6F80077216F /* AuthManager.swift in Sources */,
 				F846971E277A681B007A84B2 /* CommonProtocols.swift in Sources */,
+				F8E7C023277CFFCF001C4E50 /* ActionLabelView.swift in Sources */,
 				F8054AEC2773D2EE00AC1DCC /* RecommendedGenresResponse.swift in Sources */,
 				F8469717277A61C8007A84B2 /* SearchResultDefaultTableViewCellViewModel.swift in Sources */,
 				F8054AEE2773D5E700AC1DCC /* RecommendatiosResponse.swift in Sources */,
@@ -601,6 +616,7 @@
 				F846971B277A6517007A84B2 /* SearchResultsSubtitleTableViewCellViewModel.swift in Sources */,
 				F8E7C01E277CED06001C4E50 /* LibraryToggleView.swift in Sources */,
 				F818ED28277BB15F00261A35 /* PlayerControlsViewViewModel.swift in Sources */,
+				F8E7C025277D000B001C4E50 /* ActionLabelViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

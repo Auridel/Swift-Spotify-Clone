@@ -45,6 +45,7 @@ class ProfileViewController: UIViewController {
             DispatchQueue.main.async {
                 switch result {
                 case .success(let model):
+                    UserDefaults.standard.set(model.id, forKey: "user_id")
                     self?.updateUI(with: model)
                 case .failure(let error):
                     print(error)

@@ -9,6 +9,8 @@ import UIKit
 
 class LibraryViewController: UIViewController {
     
+    private var playlists = [Playlist]()
+    
     private let playlistsVC = LibraryPlaylistsViewController()
     
     private let albumsVC = LibraryAlbumsViewController()
@@ -18,6 +20,7 @@ class LibraryViewController: UIViewController {
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.isPagingEnabled = true
+        scrollView.showsHorizontalScrollIndicator = false
         return scrollView
     }()
 
@@ -26,6 +29,7 @@ class LibraryViewController: UIViewController {
 
         view.backgroundColor = .systemBackground
         
+        configureNavigationBarButtons()
         configureViews()
         addChildren()
     }
@@ -43,6 +47,12 @@ class LibraryViewController: UIViewController {
             y: view.safeAreaInsets.top,
             width: 200,
             height: 55)
+    }
+    
+    // MARK: Actions
+    
+    @objc private func didTapAddButton() {
+        playlistsVC.showCreatePlaylistAlert()
     }
     
     // MARK: Common
@@ -80,6 +90,18 @@ class LibraryViewController: UIViewController {
             height: scrollView.height)
         albumsVC.didMove(toParent: self)
     }
+    
+    private func configureNavigationBarButtons() {
+        switch toggleView.state {
+        case .playlists:
+            navigationItem.rightBarButtonItem = UIBarButtonItem(
+                barButtonSystemItem: .add,
+                target: self,
+                action: #selector(didTapAddButton))
+        case .albums:
+            navigationItem.rightBarButtonItem = nil
+        }
+    }
 }
 
 
@@ -87,11 +109,13 @@ class LibraryViewController: UIViewController {
 
 extension LibraryViewController: UIScrollViewDelegate {
     
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         if scrollView.contentOffset.x >= view.width - 100 {
             toggleView.updateIndicator(for: .albums)
+            configureNavigationBarButtons()
         } else if scrollView.contentOffset.x <= 100 {
             toggleView.updateIndicator(for: .playlists)
+            configureNavigationBarButtons()
         }
     }
 }
@@ -104,12 +128,14 @@ extension LibraryViewController: LibraryToggleViewDelegate {
         scrollView.setContentOffset(
             .zero,
             animated: true)
+        configureNavigationBarButtons()
     }
     
     func libraryToggleViewDidTapAlbums() {
         scrollView.setContentOffset(
             CGPoint(x: view.width, y: 0),
             animated: true)
+        configureNavigationBarButtons()
     }
     
     

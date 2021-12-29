@@ -161,7 +161,7 @@ extension PlaylistViewController: UICollectionViewDelegate, UICollectionViewData
         header.configure(with: PlaylistHeaderViewModel(
             name: playlist.name,
             ownerName: playlist.owner.display_name,
-            description: playlist.description,
+            description: playlist.description ?? "",
             artworkURL: URL(string: playlist.images.first?.url ?? "")))
         header.delegate = self
         return header

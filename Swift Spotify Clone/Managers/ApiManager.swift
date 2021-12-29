@@ -14,10 +14,12 @@ final class ApiManager {
     }
     
     enum ApiError: Error {
-        case failedToGetData
+        case failedToGetData, failedToGetPostParameters
     }
     
     typealias TypedCompletion<T> = (Result<T, Error>) -> Void
+    
+    typealias StatusCompletion = (Bool) -> Void
     
     public static let shared = ApiManager()
     
@@ -35,7 +37,8 @@ final class ApiManager {
         performApiCall(to: Constants.baseApiURL + "/me",
                        method: .GET,
                        returnModel: UserProfile.self,
-                       completion: completion)
+                       completion: completion,
+                       postParameters: nil)
     }
     
     // MARK: Browse Screen
@@ -44,14 +47,16 @@ final class ApiManager {
         performApiCall(to: Constants.baseApiURL + "/browse/new-releases?limit=50",
                        method: .GET,
                        returnModel: NewReleasesResponse.self,
-                       completion: completion)
+                       completion: completion,
+                       postParameters: nil)
     }
     
     public func getFeaturedPlaylists(completion: @escaping TypedCompletion<FeaturedPlaylistsResponse>) {
         performApiCall(to: Constants.baseApiURL + "/browse/featured-playlists?limit=50",
                        method: .GET,
                        returnModel: FeaturedPlaylistsResponse.self,
-                       completion: completion)
+                       completion: completion,
+                       postParameters: nil)
     }
     
     public func getRecommendations(genres: Set<String>, completion: @escaping TypedCompletion<RecommendationsResponse>) {
@@ -59,14 +64,16 @@ final class ApiManager {
         performApiCall(to: Constants.baseApiURL + "/recommendations?limit=50&seed_genres=\(seeds)",
                        method: .GET,
                        returnModel: RecommendationsResponse.self,
-                       completion: completion)
+                       completion: completion,
+                       postParameters: nil)
     }
     
     public func getRecommendedGenres(completion: @escaping TypedCompletion<RecommendedGenresResponse>) {
         performApiCall(to: Constants.baseApiURL + "/recommendations/available-genre-seeds",
                        method: .GET,
                        returnModel: RecommendedGenresResponse.self,
-                       completion: completion)
+                       completion: completion,
+                       postParameters: nil)
     }
     
     // MARK: Album
@@ -75,7 +82,8 @@ final class ApiManager {
         performApiCall(to: Constants.baseApiURL + "/albums/" + album.id,
                        method: .GET,
                        returnModel: AlbumDetailsResponse.self,
-                       completion: completion)
+                       completion: completion,
+                       postParameters: nil)
     }
     
     // MARK: Playlists
@@ -84,7 +92,41 @@ final class ApiManager {
         performApiCall(to: Constants.baseApiURL + "/playlists/" + playlist.id,
                        method: .GET,
                        returnModel: PlaylistDetailsResponse.self,
-                       completion: completion)
+                       completion: completion,
+                       postParameters: nil)
+    }
+    
+    public func getCurrentUserPlaylists(completion: @escaping TypedCompletion<PlaylistResponse>) {
+        performApiCall(
+            to: Constants.baseApiURL + "/me/playlists?limit=50",
+            method: .GET,
+            returnModel: PlaylistResponse.self,
+            completion: completion,
+            postParameters: nil)
+    }
+    
+    public func createPlaylist(with name: String, completion: @escaping TypedCompletion<Playlist>) {
+        getCurrentUserProfile { [weak self] result in
+            switch result {
+            case .success(let model):
+                self?.performApiCall(
+                    to: Constants.baseApiURL + "/users/\(model.id)/playlists",
+                    method: .POST,
+                    returnModel: Playlist.self,
+                    completion: completion,
+                    postParameters: ["name": name])
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    public func addTrackToPlaylist(track: AudioTrack, playlist: Playlist, completion: @escaping StatusCompletion) {
+        
+    }
+    
+    public func removeTrackFromPlaylist(track: AudioTrack, playlist: Playlist, completion: @escaping StatusCompletion) {
+        
     }
     
     // MARK: Category
@@ -94,7 +136,8 @@ final class ApiManager {
             to: Constants.baseApiURL + "/browse/categories?limit=50",
             method: .GET,
             returnModel: AllCategoriesResponse.self,
-            completion: completion)
+            completion: completion,
+            postParameters: nil)
     }
     
     public func getCategoryPlaylists(for categoryId: String, completion: @escaping TypedCompletion<CategoryPlaylistsResponse>) {
@@ -102,7 +145,8 @@ final class ApiManager {
             to: Constants.baseApiURL + "/browse/categories/\(categoryId)/playlists?limit=50",
             method: .GET,
             returnModel: CategoryPlaylistsResponse.self,
-            completion: completion)
+            completion: completion,
+            postParameters: nil)
     }
     
     // MARK: Search
@@ -114,7 +158,8 @@ final class ApiManager {
             to: urlPath,
             method: .GET,
             returnModel: SearchResultsResponse.self,
-            completion: completion)
+            completion: completion,
+            postParameters: nil)
     }
     
     public func getTypedSearchResults(query: String, completion: @escaping TypedCompletion<[SearchResult]>) {
@@ -134,9 +179,21 @@ final class ApiManager {
     
     // MARK: Private Methods
     
-    private func performApiCall<T: Codable>(to urlString: String, method: HTTPMethod, returnModel: T.Type, completion: @escaping TypedCompletion<T>) {
+    private func performApiCall<T: Codable>(to urlString: String, method: HTTPMethod, returnModel: T.Type, completion: @escaping TypedCompletion<T>, postParameters: [String: String]?) {
         createRequest(URL(string: urlString),
-                      type: .GET) { [weak self] request in
+                      type: method) { [weak self] baseRequest in
+            var request = baseRequest
+            switch method {
+            case .GET:
+                break
+            case .POST:
+                guard let body = postParameters else {
+                    completion(.failure(ApiError.failedToGetPostParameters))
+                    return
+                }
+                request.httpBody = try? JSONSerialization.data(withJSONObject: body,
+                                                               options: .fragmentsAllowed)
+            }
             self?.returnTypedResponse(T.self,
                                       request: request,
                                       completion: completion)
