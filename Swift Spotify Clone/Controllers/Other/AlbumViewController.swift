@@ -87,9 +87,12 @@ class AlbumViewController: UIViewController {
             ApiManager.shared.saveAlbum(album: self.album) { isSuccess in
                 // TODO: Show smth to user
                 if isSuccess {
+                    HapticsManager.shared.vibrate(for: .success)
                     NotificationCenter.default.post(
                         name: .albumSavedNotification,
                         object: nil)
+                } else {
+                    HapticsManager.shared.vibrate(for: .error)
                 }
             }
         }))
