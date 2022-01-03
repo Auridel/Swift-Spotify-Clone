@@ -9,6 +9,37 @@ import UIKit
 
 class WelcomeViewController: UIViewController {
     
+    private let backgroundImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.image = UIImage(named: "albums_cover")
+        return imageView
+    }()
+    
+    private let overlayView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemBackground
+        view.alpha = 0.7
+        return view
+    }()
+    
+    private let logoImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: "logo_transparent")
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    private let logoLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Listen to Millions\nof Songs on the go"
+        label.numberOfLines = 0
+        label.textColor = .label
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 32, weight: .semibold)
+        return label
+    }()
+    
     private let signInButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .white
@@ -23,21 +54,39 @@ class WelcomeViewController: UIViewController {
         super.viewDidLoad()
 
         title = "Spotify"
-        view.backgroundColor = .systemGreen
+        view.backgroundColor = .systemBackground
         
         signInButton.addTarget(self,
                                action: #selector(didTapSignIn),
                                for: .touchUpInside)
+        view.addSubview(backgroundImageView)
+        view.addSubview(overlayView)
+        view.addSubview(logoImageView)
+        view.addSubview(logoLabel)
         view.addSubview(signInButton)
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        signInButton.frame = CGRect(x: 20,
-                                    y: view.height - 50 - view.safeAreaInsets.bottom,
-                                    width: view.width - 40,
-                                    height: 50)
+        backgroundImageView.frame = view.bounds
+        overlayView.frame = view.bounds
+        signInButton.frame = CGRect(
+            x: 20,
+            y: view.height - 50 - view.safeAreaInsets.bottom,
+            width: view.width - 40,
+            height: 50)
+        logoImageView.frame = CGRect(
+            x: (view.width - 120) / 2,
+            y: (view.height - 200) / 2,
+            width: 120,
+            height: 120)
+        logoLabel.frame = CGRect(
+            x: 30,
+            y: logoImageView.bottom + 30,
+            width: view.width - 60,
+            height: 150)
+        
     }
     
     //MARK: Action
