@@ -59,6 +59,7 @@ class AlbumViewController: UIViewController {
         title = album.name
         view.backgroundColor = .systemBackground
         
+        configureNavigation()
         configureViews()
         fetchAlbum()
     }
@@ -67,6 +68,33 @@ class AlbumViewController: UIViewController {
         super.viewDidLayoutSubviews()
         
         collectionView.frame = view.bounds
+    }
+    
+    // MARK: Actions
+    
+    @objc private func didTapActions() {
+        let actionSheet = UIAlertController(
+            title: album.name,
+            message: "Actions",
+            preferredStyle: .actionSheet)
+        actionSheet.addAction(UIAlertAction(title: "Cancel",
+                                            style: .cancel,
+                                            handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "Save Album",
+                                            style: .default,
+                                            handler: { [weak self] _ in
+            guard let self = self else { return }
+            ApiManager.shared.saveAlbum(album: self.album) { isSuccess in
+                // TODO: Show smth to user
+                if isSuccess {
+                    NotificationCenter.default.post(
+                        name: .albumSavedNotification,
+                        object: nil)
+                }
+            }
+        }))
+        
+        present(actionSheet, animated: true)
     }
     
     // MARK: Common
@@ -103,6 +131,12 @@ class AlbumViewController: UIViewController {
         view.addSubview(collectionView)
     }
     
+    private func configureNavigation() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .action,
+            target: self,
+            action: #selector(didTapActions))
+    }
     
 }
 

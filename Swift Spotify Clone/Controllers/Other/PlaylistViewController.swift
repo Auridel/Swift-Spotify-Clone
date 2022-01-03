@@ -121,7 +121,7 @@ class PlaylistViewController: UIViewController {
             ApiManager.shared.removeTrackFromPlaylist(track: track,
                                                       playlist: playlist) { isSuccess in
                 if isSuccess {
-                    //FIXME: image can be cashed
+                    //FIXME: image can be cashed. Refresh on delete
                     DispatchQueue.main.async {
                         self?.tracks.remove(at: index)
                         self?.viewModels.remove(at: index)

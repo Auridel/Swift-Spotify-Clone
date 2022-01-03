@@ -10,7 +10,7 @@ import Foundation
 final class ApiManager {
     
     enum HTTPMethod: String {
-        case GET, POST, DELETE
+        case GET, POST, DELETE, PUT
     }
     
     enum ApiError: Error {
@@ -34,56 +34,82 @@ final class ApiManager {
     // MARK: Profile
     
     public func getCurrentUserProfile(completion: @escaping TypedCompletion<UserProfile>) {
-        performApiCall(to: Constants.baseApiURL + "/me",
-                       method: .GET,
-                       returnModel: UserProfile.self,
-                       completion: completion,
-                       postParameters: nil)
+        performApiCall(
+            to: Constants.baseApiURL + "/me",
+            method: .GET,
+            returnModel: UserProfile.self,
+            completion: completion,
+            postParameters: nil)
     }
     
     // MARK: Browse Screen
     
     public func getNewReleases(completion: @escaping TypedCompletion<NewReleasesResponse>) {
-        performApiCall(to: Constants.baseApiURL + "/browse/new-releases?limit=50",
-                       method: .GET,
-                       returnModel: NewReleasesResponse.self,
-                       completion: completion,
-                       postParameters: nil)
+        performApiCall(
+            to: Constants.baseApiURL + "/browse/new-releases?limit=50",
+            method: .GET,
+            returnModel: NewReleasesResponse.self,
+            completion: completion,
+            postParameters: nil)
     }
     
     public func getFeaturedPlaylists(completion: @escaping TypedCompletion<FeaturedPlaylistsResponse>) {
-        performApiCall(to: Constants.baseApiURL + "/browse/featured-playlists?limit=50",
-                       method: .GET,
-                       returnModel: FeaturedPlaylistsResponse.self,
-                       completion: completion,
-                       postParameters: nil)
+        performApiCall(
+            to: Constants.baseApiURL + "/browse/featured-playlists?limit=50",
+            method: .GET,
+            returnModel: FeaturedPlaylistsResponse.self,
+            completion: completion,
+            postParameters: nil)
     }
     
     public func getRecommendations(genres: Set<String>, completion: @escaping TypedCompletion<RecommendationsResponse>) {
         let seeds = genres.joined(separator: ",")
-        performApiCall(to: Constants.baseApiURL + "/recommendations?limit=50&seed_genres=\(seeds)",
-                       method: .GET,
-                       returnModel: RecommendationsResponse.self,
-                       completion: completion,
-                       postParameters: nil)
+        performApiCall(
+            to: Constants.baseApiURL + "/recommendations?limit=50&seed_genres=\(seeds)",
+            method: .GET,
+            returnModel: RecommendationsResponse.self,
+            completion: completion,
+            postParameters: nil)
     }
     
     public func getRecommendedGenres(completion: @escaping TypedCompletion<RecommendedGenresResponse>) {
-        performApiCall(to: Constants.baseApiURL + "/recommendations/available-genre-seeds",
-                       method: .GET,
-                       returnModel: RecommendedGenresResponse.self,
-                       completion: completion,
-                       postParameters: nil)
+        performApiCall(
+            to: Constants.baseApiURL + "/recommendations/available-genre-seeds",
+            method: .GET,
+            returnModel: RecommendedGenresResponse.self,
+            completion: completion,
+            postParameters: nil)
     }
     
     // MARK: Album
     
     public func getAlbumDetails(for album: Album, completion: @escaping TypedCompletion<AlbumDetailsResponse>) {
-        performApiCall(to: Constants.baseApiURL + "/albums/" + album.id,
-                       method: .GET,
-                       returnModel: AlbumDetailsResponse.self,
-                       completion: completion,
-                       postParameters: nil)
+        performApiCall(
+            to: Constants.baseApiURL + "/albums/" + album.id,
+            method: .GET,
+            returnModel: AlbumDetailsResponse.self,
+            completion: completion,
+            postParameters: nil)
+    }
+    
+    public func getCurrentUserAlbums(completion: @escaping TypedCompletion<LibraryAlbumResponse>) {
+        performApiCall(
+            to: Constants.baseApiURL + "/me/albums",
+            method: .GET,
+            returnModel: LibraryAlbumResponse.self,
+            completion: completion,
+            postParameters: nil)
+    }
+    
+    public func saveAlbum(album: Album, completion: @escaping StatusCompletion) {
+        performApiCall(
+            to: Constants.baseApiURL + "/me/albums",
+            method: .PUT,
+            postParameters: [
+                "ids": [album.id]
+            ],
+            completion: completion,
+            keyParameter: nil)
     }
     
     // MARK: Playlists
@@ -122,29 +148,31 @@ final class ApiManager {
     }
     
     public func addTrackToPlaylist(track: AudioTrack, playlist: Playlist, completion: @escaping StatusCompletion) {
-        performApiCall(to: Constants.baseApiURL + "/playlists/\(playlist.id)/tracks",
-                       method: .POST,
-                       postParameters: [
-                        "uris": [
-                            "spotify:track:\(track.id)"
-                        ]
-                       ],
-                       completion: completion,
-                       keyParameter: "snapshot_id")
+        performApiCall(
+            to: Constants.baseApiURL + "/playlists/\(playlist.id)/tracks",
+            method: .POST,
+            postParameters: [
+                "uris": [
+                    "spotify:track:\(track.id)"
+                ]
+            ],
+            completion: completion,
+            keyParameter: "snapshot_id")
     }
     
     public func removeTrackFromPlaylist(track: AudioTrack, playlist: Playlist, completion: @escaping StatusCompletion) {
-        performApiCall(to: Constants.baseApiURL + "/playlists/\(playlist.id)/tracks",
-                       method: .DELETE,
-                       postParameters: [
-                        "tracks": [
-                            [
-                                "uri": "spotify:track:\(track.id)"
-                            ]
-                        ]
-                       ],
-                       completion: completion,
-                       keyParameter: "snapshot_id")
+        performApiCall(
+            to: Constants.baseApiURL + "/playlists/\(playlist.id)/tracks",
+            method: .DELETE,
+            postParameters: [
+                "tracks": [
+                    [
+                        "uri": "spotify:track:\(track.id)"
+                    ]
+                ]
+            ],
+            completion: completion,
+            keyParameter: "snapshot_id")
     }
     
     // MARK: Category
@@ -204,7 +232,7 @@ final class ApiManager {
             switch method {
             case .GET:
                 break
-            case .POST:
+            case .PUT, .POST:
                 guard let body = postParameters else {
                     completion(.failure(ApiError.failedToGetPostParameters))
                     return
@@ -238,7 +266,7 @@ final class ApiManager {
                              forHTTPHeaderField: "Content-Type")
             URLSession.shared.dataTask(with: request) { data, _, error in
                 guard let data = data,
-                        error == nil
+                      error == nil
                 else {
                     print(String(describing: error))
                     completion(false)
@@ -247,7 +275,7 @@ final class ApiManager {
                 if let keyParameter = keyParameter {
                     do {
                         let result = try JSONSerialization.jsonObject(with: data,
-                                                                            options: .fragmentsAllowed)
+                                                                      options: .fragmentsAllowed)
                         guard let json = result as? [String: Any],
                               let _ = json[keyParameter] as? String
                         else {
