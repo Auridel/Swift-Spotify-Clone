@@ -9,6 +9,8 @@ import UIKit
 
 class LibraryPlaylistsViewController: UIViewController {
     
+    public var selectionHandler: ((Playlist) -> Void)?
+    
     private var playlists = [Playlist]()
     
     private let noPlaylistsView = ActionLabelView()
@@ -24,10 +26,17 @@ class LibraryPlaylistsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        view.backgroundColor = .systemBackground
 
         configureViews()
-        
         fetchUserPlaylists()
+        
+        if selectionHandler != nil {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close,
+                                                             target: self,
+                                                             action: #selector(didTapCloseButton))
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -39,6 +48,12 @@ class LibraryPlaylistsViewController: UIViewController {
                                        width: view.width - 20,
                                        height: 150)
         noPlaylistsView.center = view.center
+    }
+    
+    // MARK: Actions
+    
+    @objc private func didTapCloseButton() {
+        dismiss(animated: true, completion: nil)
     }
     
     // MARK: Common
@@ -154,6 +169,11 @@ extension LibraryPlaylistsViewController: UITableViewDelegate, UITableViewDataSo
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let playlist = playlists[indexPath.row]
+        guard selectionHandler == nil else {
+            selectionHandler?(playlist)
+            dismiss(animated: true, completion: nil)
+            return
+        }
         let playlistVC = PlaylistViewController(playlist: playlist)
         playlistVC.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(playlistVC, animated: true)

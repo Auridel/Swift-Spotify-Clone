@@ -9,6 +9,10 @@ import UIKit
 
 class HomeViewController: UIViewController {
     
+    private enum BrowseSection: Int {
+        case albums = 0, playlists = 1, tracks = 2
+    }
+    
     private var sections = [BrowseSectionType]()
     
     private var newAlbums = [Album]()
@@ -40,6 +44,7 @@ class HomeViewController: UIViewController {
                                                             action: #selector(didTapSettings))
         
         configureCollectionView()
+        addGestures()
         view.addSubview(spinner)
         fetchData()
     }
@@ -65,6 +70,7 @@ class HomeViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .systemBackground
+        collectionView.isUserInteractionEnabled = true
         view.addSubview(collectionView)
     }
     
@@ -77,7 +83,60 @@ class HomeViewController: UIViewController {
         navigationController?.pushViewController(settingsVC, animated: true)
     }
     
+    @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began else {
+            return
+        }
+        
+        let touchPoint = gesture.location(in: collectionView)
+        
+        guard let indexPath = collectionView.indexPathForItem(at: touchPoint),
+              indexPath.section == BrowseSection.tracks.rawValue
+        else {
+            return
+        }
+        let track = tracks[indexPath.row]
+        
+        callAddTrackActionSheet(for: track)
+    }
+    
     // MARK: Common
+    
+    private func callAddTrackActionSheet(for track: AudioTrack) {
+        let actionSheet = UIAlertController(title: track.name,
+                                            message: "Wuold you like to add \(track.name.suffix(7))",
+                                            preferredStyle: .actionSheet)
+        
+        actionSheet.addAction(UIAlertAction(
+            title: "Cancel",
+            style: .cancel,
+            handler: nil))
+        actionSheet.addAction(UIAlertAction(
+            title: "Add to Playlist",
+            style: .default, handler: { [weak self] _ in
+                DispatchQueue.main.async {
+                    let libraryPlaylistVC = LibraryPlaylistsViewController()
+                    libraryPlaylistVC.selectionHandler = { playlist in
+                        ApiManager.shared.addTrackToPlaylist(track: track,
+                                                             playlist: playlist) { isSuccess in
+                            // TODO: add alert or smth
+                            print("Added To Playlist \(isSuccess)")
+                        }
+                    }
+                    libraryPlaylistVC.title = "Select Playlist"
+                    self?.present(UINavigationController(rootViewController: libraryPlaylistVC),
+                                  animated: true)
+                }
+            }))
+        
+        present(actionSheet, animated: true)
+    }
+    
+    private func addGestures() {
+        let gesture = UILongPressGestureRecognizer(target: self,
+                                                   action: #selector(didLongPress(_:)))
+        collectionView.addGestureRecognizer(gesture)
+    }
     
     private static func createSectionLayout(sectionIdx: Int) -> NSCollectionLayoutSection? {
         let supplementaryViews = [
@@ -91,7 +150,7 @@ class HomeViewController: UIViewController {
         var section: NSCollectionLayoutSection?
         
         switch sectionIdx {
-        case 0:
+        case BrowseSection.albums.rawValue:
             //            self.createComposeLayoutSection(
             section = Utils.createComposeLayoutSection(
                 itemLayoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
@@ -107,7 +166,7 @@ class HomeViewController: UIViewController {
                 verticalCount: 3,
                 horizontalCount: 1,
                 orthogonalBehavior: .groupPaging)
-        case 1:
+        case BrowseSection.playlists.rawValue:
             section = Utils.createComposeLayoutSection(
                 itemLayoutSize: NSCollectionLayoutSize(widthDimension: .absolute(200),
                                                        heightDimension: .absolute(200)),
@@ -122,7 +181,7 @@ class HomeViewController: UIViewController {
                 verticalCount: 2,
                 horizontalCount: 1,
                 orthogonalBehavior: .continuous)
-        case 2:
+        case BrowseSection.tracks.rawValue:
             section = Utils.createComposeLayoutSection(
                 itemLayoutSize:  NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                         heightDimension: .fractionalHeight(1.0)),

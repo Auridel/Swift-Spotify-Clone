@@ -122,7 +122,14 @@ final class ApiManager {
     }
     
     public func addTrackToPlaylist(track: AudioTrack, playlist: Playlist, completion: @escaping StatusCompletion) {
-        
+        performApiCall(to: Constants.baseApiURL + "/playlists/\(playlist.id)/tracks",
+                       postParameters: [
+                        "uris": [
+                            "spotify:track:\(track.id)"
+                        ]
+                       ],
+                       completion: completion,
+                       keyParameter: "snapshot_id")
     }
     
     public func removeTrackFromPlaylist(track: AudioTrack, playlist: Playlist, completion: @escaping StatusCompletion) {
@@ -153,7 +160,7 @@ final class ApiManager {
     
     public func search(with query: String, completion: @escaping TypedCompletion<SearchResultsResponse>) {
         let urlPath = Constants.baseApiURL + "/search?limit=15&type=album,artist,playlist,track" +
-            "&q=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
+        "&q=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
         performApiCall(
             to: urlPath,
             method: .GET,
@@ -197,6 +204,49 @@ final class ApiManager {
             self?.returnTypedResponse(T.self,
                                       request: request,
                                       completion: completion)
+        }
+    }
+    
+    private func performApiCall(to urlString: String, postParameters: [String: Any], completion: @escaping StatusCompletion, keyParameter: String?) {
+        createRequest(URL(string: urlString),
+                      type: .POST) { baseRequest in
+            guard let body = try? JSONSerialization.data(withJSONObject: postParameters,
+                                                         options: .fragmentsAllowed)
+            else {
+                completion(false)
+                return
+            }
+            var request = baseRequest
+            request.httpBody = body
+            request.setValue("application/json",
+                             forHTTPHeaderField: "Content-Type")
+            URLSession.shared.dataTask(with: request) { data, _, error in
+                guard let data = data,
+                        error == nil
+                else {
+                    print(String(describing: error))
+                    completion(false)
+                    return
+                }
+                if let keyParameter = keyParameter {
+                    do {
+                        let result = try JSONSerialization.jsonObject(with: data,
+                                                                            options: .fragmentsAllowed)
+                        guard let json = result as? [String: Any],
+                              let _ = json[keyParameter] as? String
+                        else {
+                            completion(false)
+                            return
+                        }
+                    } catch let error {
+                        completion(false)
+                        print(error)
+                        return
+                    }
+                } else {
+                    completion(true)
+                }
+            }.resume()
         }
     }
     
