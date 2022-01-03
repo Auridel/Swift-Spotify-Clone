@@ -9,6 +9,8 @@ import UIKit
 
 class PlaylistViewController: UIViewController {
     
+    public var isOwner = false
+    
     private let playlist: Playlist
     
     private var viewModels = [RecommendedTracksCellViewModel]()
@@ -65,7 +67,7 @@ class PlaylistViewController: UIViewController {
                                                             action: #selector(didTapShareButton))
         
         configureViews()
-        
+        addGestures()
         fetchPlaylistDetails(playlist: playlist)
     }
     
@@ -88,7 +90,58 @@ class PlaylistViewController: UIViewController {
         present(vc, animated: true)
     }
     
+    @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began else {
+            return
+        }
+        
+        let touchPoint = gesture.location(in: collectionView)
+        guard let indexPath = collectionView.indexPathForItem(at: touchPoint)
+        else {
+            return
+        }
+        
+        let trackToDelete = tracks[indexPath.row]
+        callDeleteTrackActonSheet(for: trackToDelete, index: indexPath.row)
+    }
+    
     // MARK: Common
+    
+    private func callDeleteTrackActonSheet(for track: AudioTrack, index: Int) {
+        let actionSheet = UIAlertController(title: "Remove Track",
+                                            message: "Would you like to remove \(track.name) from playlist?",
+                                            preferredStyle: .actionSheet)
+        actionSheet.addAction(UIAlertAction(title: "Cancel",
+                                            style: .cancel,
+                                            handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "Remove",
+                                            style: .destructive,
+                                            handler: { [weak self] _ in
+            guard let playlist = self?.playlist else { return }
+            ApiManager.shared.removeTrackFromPlaylist(track: track,
+                                                      playlist: playlist) { isSuccess in
+                if isSuccess {
+                    //FIXME: image can be cashed
+                    DispatchQueue.main.async {
+                        self?.tracks.remove(at: index)
+                        self?.viewModels.remove(at: index)
+                        self?.collectionView.reloadData()
+                    }
+                } else {
+                    //TODO: Show smth
+                    print("FAILED TO DELETE")
+                }
+            }
+        }))
+        
+        present(actionSheet, animated: true)
+    }
+    
+    private func addGestures() {
+        let gesture = UILongPressGestureRecognizer(target: self,
+                                                   action: #selector(didLongPress(_:)))
+        collectionView.addGestureRecognizer(gesture)
+    }
     
     private func configureViews() {
         collectionView.register(RecommendedTrackCollectionViewCell.self,

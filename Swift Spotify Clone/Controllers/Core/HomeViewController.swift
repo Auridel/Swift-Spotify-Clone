@@ -104,7 +104,7 @@ class HomeViewController: UIViewController {
     
     private func callAddTrackActionSheet(for track: AudioTrack) {
         let actionSheet = UIAlertController(title: track.name,
-                                            message: "Wuold you like to add \(track.name.suffix(7))",
+                                            message: "Wuold you like to add \(track.name)?",
                                             preferredStyle: .actionSheet)
         
         actionSheet.addAction(UIAlertAction(

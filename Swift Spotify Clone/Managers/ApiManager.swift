@@ -10,7 +10,7 @@ import Foundation
 final class ApiManager {
     
     enum HTTPMethod: String {
-        case GET, POST
+        case GET, POST, DELETE
     }
     
     enum ApiError: Error {
@@ -123,6 +123,7 @@ final class ApiManager {
     
     public func addTrackToPlaylist(track: AudioTrack, playlist: Playlist, completion: @escaping StatusCompletion) {
         performApiCall(to: Constants.baseApiURL + "/playlists/\(playlist.id)/tracks",
+                       method: .POST,
                        postParameters: [
                         "uris": [
                             "spotify:track:\(track.id)"
@@ -133,7 +134,17 @@ final class ApiManager {
     }
     
     public func removeTrackFromPlaylist(track: AudioTrack, playlist: Playlist, completion: @escaping StatusCompletion) {
-        
+        performApiCall(to: Constants.baseApiURL + "/playlists/\(playlist.id)/tracks",
+                       method: .DELETE,
+                       postParameters: [
+                        "tracks": [
+                            [
+                                "uri": "spotify:track:\(track.id)"
+                            ]
+                        ]
+                       ],
+                       completion: completion,
+                       keyParameter: "snapshot_id")
     }
     
     // MARK: Category
@@ -200,6 +211,11 @@ final class ApiManager {
                 }
                 request.httpBody = try? JSONSerialization.data(withJSONObject: body,
                                                                options: .fragmentsAllowed)
+            case .DELETE:
+                if let body = postParameters {
+                    request.httpBody = try? JSONSerialization.data(withJSONObject: body,
+                                                                   options: .fragmentsAllowed)
+                }
             }
             self?.returnTypedResponse(T.self,
                                       request: request,
@@ -207,9 +223,9 @@ final class ApiManager {
         }
     }
     
-    private func performApiCall(to urlString: String, postParameters: [String: Any], completion: @escaping StatusCompletion, keyParameter: String?) {
+    private func performApiCall(to urlString: String, method: HTTPMethod, postParameters: [String: Any], completion: @escaping StatusCompletion, keyParameter: String?) {
         createRequest(URL(string: urlString),
-                      type: .POST) { baseRequest in
+                      type: method) { baseRequest in
             guard let body = try? JSONSerialization.data(withJSONObject: postParameters,
                                                          options: .fragmentsAllowed)
             else {
@@ -238,6 +254,7 @@ final class ApiManager {
                             completion(false)
                             return
                         }
+                        completion(true)
                     } catch let error {
                         completion(false)
                         print(error)
